@@ -10,6 +10,7 @@ class SimpleAutoCompleteTextField extends AutoCompleteTextField<String> {
   final TextDirection textDirection;
   final TextAlign textAlign;
   final bool autovalidate;
+  final FormFieldValidator<String> validator;
 
   SimpleAutoCompleteTextField(
       {TextStyle style,
@@ -20,10 +21,12 @@ class SimpleAutoCompleteTextField extends AutoCompleteTextField<String> {
       this.minLength = 1,
       this.controller,
       this.focusNode,
+      this.validator,
       this.sugTextStyle,
-      this.textDirection,
-      this.textAlign,
+      this.textDirection: TextDirection.ltr,
+      this.textAlign: TextAlign.start,
       this.autovalidate,
+      bool clearAfterSelect,
       TextInputType keyboardType: TextInputType.text,
       @required GlobalKey<AutoCompleteTextFieldState<String>> key,
       @required List<String> suggestions,
@@ -40,10 +43,12 @@ class SimpleAutoCompleteTextField extends AutoCompleteTextField<String> {
           itemSubmitted: textSubmitted,
           keyboardType: keyboardType,
           key: key,
+          validator: validator,
           suggestions: suggestions,
           itemBuilder: null,
           itemSorter: null,
           itemFilter: null,
+          clearAfterSelect: clearAfterSelect,
           suggestionsAmount: suggestionsAmount,
           submitOnSuggestionTap: submitOnSuggestionTap,
           clearOnSubmit: clearOnSubmit,
@@ -66,6 +71,7 @@ class SimpleAutoCompleteTextField extends AutoCompleteTextField<String> {
         textInputAction: textInputAction,
         keyboardType: keyboardType,
         style: style,
+        clearAfterSelect: clearAfterSelect,
         decoration: decoration,
         minLength: minLength,
         textAlign: textAlign,

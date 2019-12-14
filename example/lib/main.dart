@@ -38,8 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
               title: new Text("Complex Use")),
         ],
         onTap: (index) => setState(() {
-              selectedIndex = index;
-            }),
+          selectedIndex = index;
+        }),
         currentIndex: selectedIndex,
       ),
       body: pages[selectedIndex],
@@ -56,56 +56,45 @@ class _FirstPageState extends State<FirstPage> {
   List<String> added = [];
   String currentText = "";
   GlobalKey<AutoCompleteTextFieldState<String>> key = new GlobalKey();
+  TextEditingController textEditingController = TextEditingController();
 
   _FirstPageState() {
     textField = SimpleAutoCompleteTextField(
       key: key,
-      decoration: new InputDecoration(errorText: "Beans"),
-      controller: TextEditingController(text: "Starting Text"),
+      decoration: new InputDecoration(hintText: 'Starting Text'),
+      controller: textEditingController,
       suggestions: suggestions,
       textChanged: (text) => currentText = text,
       clearOnSubmit: true,
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.start,
+      keyboardType: TextInputType.emailAddress,
+      autovalidate: false,
+      validator: (text) {
+        if (_isEmail(text)) return 'Enter A valide email!';
+        return null;
+      },
+      sugTextStyle: TextStyle(color: Colors.blue),
       textSubmitted: (text) => setState(() {
-            if (text != "") {
-              added.add(text);
-            }
-          }),
+        textEditingController.text = text;
+      }),
     );
   }
 
+  bool _isEmail(String value) {
+    Pattern pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regex = new RegExp(pattern);
+    if (regex.hasMatch(value)) return false;
+    return true;
+  }
+
   List<String> suggestions = [
-    "Apple",
-    "Armidillo",
-    "Actual",
-    "Actuary",
-    "America",
-    "Argentina",
-    "Australia",
-    "Antarctica",
-    "Blueberry",
-    "Cheese",
-    "Danish",
-    "Eclair",
-    "Fudge",
-    "Granola",
-    "Hazelnut",
-    "Ice Cream",
-    "Jely",
-    "Kiwi Fruit",
-    "Lamb",
-    "Macadamia",
-    "Nachos",
-    "Oatmeal",
-    "Palm Oil",
-    "Quail",
-    "Rabbit",
-    "Salad",
-    "T-Bone Steak",
-    "Urid Dal",
-    "Vanilla",
-    "Waffles",
-    "Yam",
-    "Zest"
+    'muhmdhsn313@gmail.com',
+    'ali@gmail.com',
+    'mumu@teamos.org',
+    'frs@node.com',
+    'asd@nuss.com',
   ];
 
   SimpleAutoCompleteTextField textField;
@@ -113,54 +102,62 @@ class _FirstPageState extends State<FirstPage> {
 
   @override
   Widget build(BuildContext context) {
-    Column body = new Column(children: [
-      new ListTile(
+    Column body = new Column(
+      children: [
+        new ListTile(
           title: textField,
           trailing: new IconButton(
-              icon: new Icon(Icons.add),
-              onPressed: () {
-                textField.triggerSubmitted();
-                showWhichErrorText = !showWhichErrorText;
-                textField.updateDecoration(
-                    decoration: new InputDecoration(
-                        errorText: showWhichErrorText ? "Beans" : "Tomatoes"));
-              })),
-    ]);
+            icon: new Icon(Icons.add),
+            onPressed: () {
+              textField.triggerSubmitted();
+              showWhichErrorText = !showWhichErrorText;
+              textField.updateDecoration();
+            },
+          ),
+        ),
+      ],
+    );
 
     body.children.addAll(added.map((item) {
       return new ListTile(title: new Text(item));
     }));
 
     return new Scaffold(
-        resizeToAvoidBottomPadding: false,
-        appBar: new AppBar(
-            title: new Text('AutoComplete TextField Demo Simple'),
-            actions: [
-              new IconButton(
-                  icon: new Icon(Icons.edit),
-                  onPressed: () => showDialog(
-                      builder: (_) {
-                        String text = "";
-
-                        return new AlertDialog(
-                            title: new Text("Change Suggestions"),
-                            content: new TextField(
-                                onChanged: (newText) => text = newText),
-                            actions: [
-                              new FlatButton(
-                                  onPressed: () {
-                                    if (text != "") {
-                                      suggestions.add(text);
-                                      textField.updateSuggestions(suggestions);
-                                    }
-                                    Navigator.pop(context);
-                                  },
-                                  child: new Text("Add")),
-                            ]);
+      resizeToAvoidBottomPadding: false,
+      appBar: new AppBar(
+        title: new Text('AutoComplete TextField Demo Simple'),
+        actions: [
+          new IconButton(
+            icon: new Icon(Icons.edit),
+            onPressed: () => showDialog(
+              builder: (_) {
+                String text = "";
+                return new AlertDialog(
+                  title: new Text("Change Suggestions"),
+                  content: new TextField(
+                    onChanged: (newText) => text = newText,
+                  ),
+                  actions: [
+                    new FlatButton(
+                      onPressed: () {
+                        if (text != "") {
+                          suggestions.add(text);
+                          textField.updateSuggestions(suggestions);
+                        }
+                        Navigator.pop(context);
                       },
-                      context: context))
-            ]),
-        body: body);
+                      child: new Text("Add"),
+                    ),
+                  ],
+                );
+              },
+              context: context,
+            ),
+          )
+        ],
+      ),
+      body: body,
+    );
   }
 }
 
@@ -226,16 +223,22 @@ class _SecondPageState extends State<SecondPage> {
 
   _SecondPageState() {
     textField = new AutoCompleteTextField<ArbitrarySuggestionType>(
+      textAlign: TextAlign.start,
+      textDirection: TextDirection.ltr,
       decoration: new InputDecoration(
-          hintText: "Search Resturant:", suffixIcon: new Icon(Icons.search)),
+        hintText: "Search Resturant:",
+        suffixIcon: new Icon(Icons.search),
+      ),
       itemSubmitted: (item) => setState(() => selected = item),
       key: key,
       suggestions: suggestions,
       itemBuilder: (context, suggestion) => new Padding(
-          child: new ListTile(
-              title: new Text(suggestion.name),
-              trailing: new Text("Stars: ${suggestion.stars}")),
-          padding: EdgeInsets.all(8.0)),
+        child: new ListTile(
+          title: new Text(suggestion.name),
+          trailing: new Text("Stars: ${suggestion.stars}"),
+        ),
+        padding: EdgeInsets.all(8.0),
+      ),
       itemSorter: (a, b) => a.stars == b.stars ? 0 : a.stars > b.stars ? -1 : 1,
       itemFilter: (suggestion, input) =>
           suggestion.name.toLowerCase().startsWith(input.toLowerCase()),
@@ -249,26 +252,33 @@ class _SecondPageState extends State<SecondPage> {
       appBar: new AppBar(
         title: new Text('AutoComplete TextField Demo Complex'),
       ),
-      body: new Column(children: [
-        new Padding(
+      body: new Column(
+        children: [
+          new Padding(
             child: new Container(child: textField),
-            padding: EdgeInsets.all(16.0)),
-        new Padding(
+            padding: EdgeInsets.all(16.0),
+          ),
+          new Padding(
             padding: EdgeInsets.fromLTRB(0.0, 64.0, 0.0, 0.0),
             child: new Card(
-                child: selected != null
-                    ? new Column(children: [
-                        new ListTile(
-                            title: new Text(selected.name),
-                            trailing: new Text("Rating: ${selected.stars}/5")),
-                        new Container(
-                            child: new Image(
-                                image: new NetworkImage(selected.imgURL)),
-                            width: 400.0,
-                            height: 300.0)
-                      ])
-                    : new Icon(Icons.cancel))),
-      ]),
+              child: selected != null
+                  ? new Column(children: [
+                      new ListTile(
+                        title: new Text(selected.name),
+                        trailing: new Text("Rating: ${selected.stars}/5"),
+                      ),
+                      new Container(
+                          child: new Image(
+                            image: new NetworkImage(selected.imgURL),
+                          ),
+                          width: 400.0,
+                          height: 300.0)
+                    ])
+                  : new Icon(Icons.cancel),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -21,16 +21,17 @@ class AutoCompleteTextFieldState<T> extends State<AutoCompleteTextField> {
 
   String currentText = "";
 
-  FormFieldValidator<String> validator;
   InputDecoration decoration;
   List<TextInputFormatter> inputFormatters;
   TextCapitalization textCapitalization;
   TextStyle style;
   TextInputType keyboardType;
   TextInputAction textInputAction;
-  TextDirection textDirection;
-  TextAlign textAlign;
-  bool autovalidate;
+  final TextDirection textDirection;
+  final TextAlign textAlign;
+  final bool autovalidate;
+  final bool clearAfterSelect;
+  FormFieldValidator<String> validator;
 
   AutoCompleteTextFieldState({
     this.suggestions,
@@ -38,8 +39,10 @@ class AutoCompleteTextFieldState<T> extends State<AutoCompleteTextField> {
     this.textSubmitted,
     this.onFocusChanged,
     this.itemSubmitted,
+    this.validator,
     this.itemBuilder,
     this.itemSorter,
+    this.clearAfterSelect = false,
     this.autovalidate = false,
     this.itemFilter,
     this.textAlign = TextAlign.start,
@@ -104,13 +107,17 @@ class AutoCompleteTextFieldState<T> extends State<AutoCompleteTextField> {
     });
   }
 
-  void updateDecoration(
-      InputDecoration decoration,
-      List<TextInputFormatter> inputFormatters,
-      TextCapitalization textCapitalization,
-      TextStyle style,
-      TextInputType keyboardType,
-      TextInputAction textInputAction) {
+  void updateDecoration({
+    InputDecoration decoration,
+    List<TextInputFormatter> inputFormatters,
+    TextCapitalization textCapitalization,
+    TextStyle style,
+    TextInputType keyboardType,
+    TextInputAction textInputAction,
+    TextAlign textAlign = TextAlign.start,
+    TextDirection textDirection = TextDirection.ltr,
+    FormFieldValidator<String> validator,
+  }) {
     if (decoration != null) {
       this.decoration = decoration;
     }
@@ -127,6 +134,10 @@ class AutoCompleteTextFieldState<T> extends State<AutoCompleteTextField> {
       this.style = style;
     }
 
+    if (validator != null) {
+      this.validator = validator;
+    }
+
     if (keyboardType != null) {
       this.keyboardType = keyboardType;
     }
@@ -141,6 +152,7 @@ class AutoCompleteTextFieldState<T> extends State<AutoCompleteTextField> {
         textCapitalization: this.textCapitalization,
         decoration: this.decoration,
         style: this.style,
+        validator: this.validator,
         keyboardType: this.keyboardType,
         focusNode: focusNode ?? new FocusNode(),
         controller: controller ?? new TextEditingController(),
@@ -173,8 +185,10 @@ class AutoCompleteTextFieldState<T> extends State<AutoCompleteTextField> {
   }
 
   void clear() {
-    textField.controller.clear();
-    currentText = "";
+    if (this.clearAfterSelect) {
+      textField.controller.clear();
+      currentText = "";
+    }
     updateOverlay();
   }
 
